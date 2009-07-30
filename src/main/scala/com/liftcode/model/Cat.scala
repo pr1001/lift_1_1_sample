@@ -28,7 +28,8 @@ class Cat extends KeyedMapper[String, Cat] {
 	
 	private var myDirty = false
 	override def dirty_? = myDirty
-	override def dirty_?(b : Boolean) = { myDirty = b; super.dirty_?(b) } 	
+	override def dirty_?(b : Boolean) = { myDirty = b; super.dirty_?(b) }
+	override def fieldCreatorString(dbType: DriverType, colName: String): String = colName+" CHAR("+maxLen+") NOT NULL "
  }
  object name extends MappedPoliteString(this, 128)
  object weight extends MappedInt(this)
