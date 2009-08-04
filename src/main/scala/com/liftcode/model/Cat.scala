@@ -33,6 +33,7 @@ class Cat extends KeyedMapper[String, Cat] {
  }
  object name extends MappedPoliteString(this, 128)
  object weight extends MappedInt(this)
+ object ts extends MappedDateTime(this) with MappedTimestamp
 }
 
 object Cat extends Cat with KeyedMetaMapper[String, Cat] {
