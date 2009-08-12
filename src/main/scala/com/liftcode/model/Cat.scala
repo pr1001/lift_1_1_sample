@@ -10,9 +10,7 @@ package com.liftcode.model
 import net.liftweb._
 import mapper._
 import util._
-import Helpers._
-
-import _root_.java.util.Date
+import Helpers._  
 
 /**
  * An O-R mapped "Cat" class that uses a MAC address as the primary key
@@ -35,7 +33,7 @@ class Cat extends KeyedMapper[String, Cat] {
  }
  object name extends MappedPoliteString(this, 128)
  object weight extends MappedInt(this)
- object ts extends MappedDateTime(this) with MappedTimestamp[MappedDateTime[Date]]
+ object ts extends MappedDateTime(this) with MappedTimestamp
 }
 
 object Cat extends Cat with KeyedMetaMapper[String, Cat] {
