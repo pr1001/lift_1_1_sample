@@ -28,12 +28,9 @@ import S._
 import js._
 
 import _root_.scala.xml.{NodeSeq}
+import _root_.net.liftweb.mapper.{DriverType, Mapper, MappedDateTime}
 
-import net.liftweb.mapper.Mapper
-import net.liftweb.mapper.MappedDateTime
-
-trait MappedTimestamp[T<:Mapper[T]] extends MappedDateTime[Date] {
-  this: T with MappedTimestamp[T] =>
+class MappedTimestamp[T<:Mapper[T]](val owner: T) extends MappedDateTime[T](owner) {
 
   override def toLong: Long = is match {
     case null => 0L
@@ -49,33 +46,22 @@ trait MappedTimestamp[T<:Mapper[T]] extends MappedDateTime[Date] {
    * Create an input field for the item
    */
   override def _toForm: Box[NodeSeq] =
-  S.fmapFunc({s: List[String] => this.setFromAny(s)}){funcName =>
-  Full(<input type='text' id={fieldId}
+  S.fmapFunc({
+    s: List[String] => this.setFromAny(s)
+  }){
+    funcName => Full(
+      <input type='text' id={fieldId}
       name={funcName} lift:gc={funcName}
-      value={is match {case null => "" case s => s}}/>)
+      value={is match {case null => "" case s => s.toString}}/>
+    )
   }
 
   override def jdbcFriendly(field : String) : Object = is match {
     case null => null
-    case d => new _root_.java.sql.Date(d.getTime)
+    case d => new _root_.java.lang.Long(d.getTime)
   }
 
   override def real_convertToJDBCFriendly(value: Date): Object = if (value == null) null else new _root_.java.lang.Long(value.getTime)
-
-  override def buildSetActualValue(accessor: Method, v: AnyRef, columnName: String): (T, AnyRef) => Unit =
-  (inst, v) => doField(inst, accessor, {case f: MappedTimestamp[T] => f.st(toDate(v))})
-
-  override def buildSetLongValue(accessor: Method, columnName: String): (T, Long, Boolean) => Unit =
-  (inst, v, isNull) => doField(inst, accessor, {case f: MappedTimestamp[T] => f.st(if (isNull) Empty else Full(new Date(v)))})
-
-  override def buildSetStringValue(accessor: Method, columnName: String): (T, String) => Unit =
-  (inst, v) => doField(inst, accessor, {case f: MappedTimestamp[T] => f.st(toDate(v))})
-
-  override def buildSetDateValue(accessor: Method, columnName: String): (T, Date) => Unit =
-  (inst, v) => doField(inst, accessor, {case f: MappedTimestamp[T] => f.st(Full(v))})
-
-  override def buildSetBooleanValue(accessor: Method, columnName: String): (T, Boolean, Boolean) => Unit =
-  (inst, v, isNull) => doField(inst, accessor, {case f: MappedTimestamp[T] => f.st(Empty)})
 
   /**
    * Given the driver type, return the string required to create the column in the database
